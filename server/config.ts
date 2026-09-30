@@ -1,0 +1,14 @@
+export const config = {
+  port: Number(process.env.PORT ?? 3001),
+  images: {
+    // 安全靶机镜像（预置漏洞 + flag）
+    security: process.env.SECURITY_IMAGE ?? 'codecrossroad/security:latest',
+    // 代码执行镜像（node + python）
+    software: process.env.SOFTWARE_IMAGE ?? 'codecrossroad/software:latest',
+  },
+  limits: {
+    cpu: Number(process.env.CPU_LIMIT ?? 0.5),        // 0.5 核
+    memoryBytes: Number(process.env.MEMORY_LIMIT ?? 256) * 1024 * 1024, // 256MB
+    timeoutSeconds: Number(process.env.TIMEOUT ?? 8), // 单次执行超时
+  },
+} as const;

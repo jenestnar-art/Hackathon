@@ -1,0 +1,44 @@
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black 15%, transparent 92%);
+}
+
+.track-card {
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 320ms ease,
+    box-shadow 320ms ease;
+}
+
+.track-card__glow {
+  background: var(--track-color);
+}
+
+.track-card:hover {
+  border-color: color-mix(in srgb, var(--track-color) 34%, transparent);
+  box-shadow: 0 28px 80px color-mix(in srgb, var(--track-color) 13%, transparent);
+  transform: translateY(-6px);
+}
+
+.track-card:hover .track-card__glow {
+  opacity: 0.16;
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
