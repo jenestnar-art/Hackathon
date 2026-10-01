@@ -1,0 +1,147 @@
+/* 嵌入式实验室 · 全局主题 —— 深灰网格台面气质，深/浅双色 */
+:root {
+  --bg: #1c2128;            /* 页面底 */
+  --bench: #262d38;         /* 台面 */
+  --grid-line: rgba(255, 255, 255, 0.05);
+  --card: #2f3846;          /* 元件卡 */
+  --card-edge: #3d4a5c;
+  --ink: #e8edf4;           /* 主文字 */
+  --ink-dim: #93a1b3;       /* 次文字 */
+  --accent: #ffc857;        /* 强调黄（电流/徽章） */
+  --live: #4ade80;          /* LIVE 绿 */
+  --danger: #f87171;
+  --spark: #ffe9a3;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  /* 动效规范（参考 emil-design-eng）：UI 一律 ease-out，≤300ms */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+[data-theme='light'] {
+  --bg: #eef1f5;
+  --bench: #e2e7ee;
+  --grid-line: rgba(0, 0, 0, 0.06);
+  --card: #ffffff;
+  --card-edge: #c9d2de;
+  --ink: #24303f;
+  --ink-dim: #5c6b7e;
+  --accent: #d9a013;
+  --live: #16a34a;
+  --danger: #dc2626;
+  --spark: #b45309;
+  --shadow: 0 6px 20px rgba(30, 40, 60, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* 深灰网格台面 */
+.bench-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.btn {
+  border: 1px solid var(--card-edge);
+  background: var(--card);
+  color: var(--ink);
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), box-shadow 0.2s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+/* 按压反馈：按钮要"响应按压"（scale 0.95-0.98） */
+.btn:active { transform: translateY(0) scale(0.97); }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #1c2128;
+  font-weight: 700;
+}
+
+/* 入场动画：opacity + 轻微上移（绝不用 scale(0)），200ms ease-out */
+.fade-up {
+  animation: fadeUp 200ms var(--ease-out) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 触屏设备不玩 hover（防点按误触发悬浮效果） */
+@media (hover: none) {
+  .btn:hover { transform: none; box-shadow: none; }
+}
+
+/* ── 顶栏关卡选择器 ─────────────────────────────
+   高频导航：切换零动画；hover 轻反馈（上浮+描边，160ms ease-out） */
+.lvl-chip {
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  border: 1px solid var(--card-edge);
+  background: var(--card);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), border-color 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out), background 200ms;
+}
+.lvl-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.lvl-chip:active { transform: translateY(0) scale(0.97); }
+
+.lvl-num {
+  font-size: 12.5px; font-weight: 700;
+  color: var(--ink-dim);
+  transition: color 200ms;
+}
+.lvl-chip:hover .lvl-num { color: var(--accent); }
+
+/* 当前关：accent 实底（状态指示，200ms 过渡合法） */
+.lvl-current {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.lvl-current .lvl-num { color: #1c2128; font-weight: 800; }
+
+/* 已通关：绿 ✓ */
+.lvl-cleared .lvl-num { color: var(--live); }
+.lvl-cleared:hover .lvl-num { color: var(--live); }
+
+/* 关名气泡：从触发点缩放展开（150ms ease-out） */
+.lvl-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  animation: tipIn 150ms var(--ease-out) both;
+}
+@keyframes tipIn {
+  from { opacity: 0; transform: translateX(-50%) scale(0.96); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+/* 窄屏：关卡点不变，气泡自动适配 */
