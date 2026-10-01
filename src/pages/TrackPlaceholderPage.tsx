@@ -1,13 +1,23 @@
 import { ChevronLeft, Construction, Sparkles } from 'lucide-react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { BrandMark } from '@/components/BrandMark'
 import { getTrack } from '@/data/tracks'
+// ═══ 人工智能方向：完整模块（和 security 一样走独立实现，不落在占位页）═══
+import { ChapterPlay } from '@/features/ai/ChapterPlay'
 
 export function TrackPlaceholderPage() {
   const { trackId } = useParams<{ trackId: string }>()
   const track = getTrack(trackId)
+  const navigate = useNavigate()
 
   if (!track) return <Navigate to="/" replace />
+
+  /* 人工智能方向已经有完整的五章玩法了。
+     这里只是把路由指向它 —— AI 模块本身完全自包含在 src/features/ai/ 里，
+     除这一行以外不需要动产品里任何其它代码。 */
+  if (track.id === 'ai') {
+    return <ChapterPlay onExit={() => navigate('/')} />
+  }
 
   const Icon = track.icon
 

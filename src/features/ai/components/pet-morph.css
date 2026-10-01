@@ -1,0 +1,150 @@
+/* =============================================================================
+   pet-morph.css —— 形态变化的"梯形遮挡片"转场
+   ---------------------------------------------------------------------------
+   设计（用户明确的规格）：
+     · 固定机位，球体一直在画面中央，静止
+     · 一块大梯形从右侧远处逼近镜头（近大远小，带透视）
+     · 梯形由右向左掠过
+     · 在【完全遮住球体的那一瞬】换成新形态（观众看不到切换）
+     · 梯形从左侧离开，球体重新出现 —— 已经是新形态了
+     · 静止后落在原位、同一朝向、大小接近
+     · 浅色背景、柔和光影、无镜头移动
+
+   为什么这个比"缩放+闪光"高级：
+     缩放闪光是在"表演变化"，观众盯着看它是怎么变的。
+     遮挡片是"借遮挡偷换"，观众只看到结果 —— 这才是游戏里的利落感。
+   ========================================================================== */
+
+.pm-stage {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 固定机位：容器不做任何位移/缩放 */
+}
+
+/* 球体本体：只做一次很轻的"落定"回弹，绝不位移 */
+.pm-body {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+}
+.pm-body.pm-landed {
+  animation: pm-land 460ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@keyframes pm-land {
+  0% {
+    transform: scale(1.1, 0.9);
+  }
+  45% {
+    transform: scale(0.96, 1.05);
+  }
+  75% {
+    transform: scale(1.02, 0.99);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+/* 遮挡层：盖住整个舞台，但不能被点击 */
+.pm-wipe-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 梯形本体：用 clip-path 裁出一个近大远小的梯形 */
+.pm-trapezoid {
+  position: absolute;
+  top: -18%;
+  bottom: -18%;
+  left: 0;
+  width: 62%;
+  background: linear-gradient(
+    100deg,
+    #e9f2ee 0%,
+    #d7ff68 26%,
+    #a7e8c8 52%,
+    #cfd8d3 78%,
+    #eef4f1 100%
+  );
+  /* 左边（远处/拖尾）窄，右边（近处/前刃）宽 —— 形成透视梯形 */
+  clip-path: polygon(9% 0%, 100% 0%, 100% 100%, 0% 100%);
+  filter: drop-shadow(0 18px 38px rgba(18, 32, 30, 0.18));
+  transform: translateX(-140%) scale(1.02);
+  will-change: transform;
+}
+
+/* 前刃高光：一条更亮的窄条，贴着梯形右缘，强调"逼近" */
+.pm-trapezoid::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 14%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.85) 60%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+}
+
+/* 掠过：从右侧远处（放大）冲到左侧（缩小离开） */
+.pm-sweeping .pm-trapezoid {
+  animation: pm-sweep 900ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes pm-sweep {
+  0% {
+    transform: translateX(-140%) scale(1.02);
+  }
+  50% {
+    transform: translateX(28%) scale(1.14);
+  }
+  100% {
+    transform: translateX(200%) scale(1);
+  }
+}
+
+/* 舞台整体轻微"被风压到"的感觉：只用一点点阴影变化，不移动位置 */
+.pm-stage.pm-sweeping::after {
+  content: '';
+  position: absolute;
+  inset: -6%;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 60%, rgba(215, 255, 104, 0.16), transparent 62%);
+  pointer-events: none;
+  animation: pm-glow 900ms ease-out 1;
+}
+
+@keyframes pm-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 用户开了"减少动态效果"：退化成简单淡入淡出，不做扫过 */
+@media (prefers-reduced-motion: reduce) {
+  .pm-sweeping .pm-trapezoid {
+    animation: pm-fade 620ms ease-out forwards;
+  }
+  @keyframes pm-fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.92;
+    }
+  }
+}

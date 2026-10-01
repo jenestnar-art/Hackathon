@@ -1,0 +1,218 @@
+﻿/* =============================================================================
+   form-handoff.css —— 章节开场时的"形态交接"
+   ---------------------------------------------------------------------------
+   演的是什么：
+     你刚打完上一章，它变成了某个样子。
+     进入新一章时，那只见过的球【向上浮起、淡出】，
+     同时一只【新形态】从下方浮现上来 —— 像换了个东西站在同一个位置。
+
+   为什么比"直接切一张图"好：
+     它向观众交代了因果："上一章的结果，变成了现在这只"。
+     切换本身变成了叙事，而不是一次刷新。
+
+   时间轴（总 1.9 秒）：
+     0.00  旧的居中站定，新的藏在下方
+     0.25  旧的开始上浮 + 淡出；新的从下方升上来
+     1.25  新的到位，轻轻回弹一下（有重量）
+     1.50  文字开始浮现
+   ========================================================================== */
+
+.fh-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* 两只球都绝对定位在同一个中心点，靠 translateY 做交接 */
+.fh-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  will-change: transform, opacity, filter;
+}
+
+/* ---------------- 旧形态：向上浮走 ----------------
+   ★ 这里没有用 animation-delay。
+   踩过的坑：用 delay 的期间，元素会回到「基础位置」——
+   我们的基础位置是中心，于是旧的球会先"瞬移"到中心再开始上浮，
+   在 450ms 附近能看到一次明显的跳变。
+   解决办法：把"先停一下"写成关键帧里的 0%~33% 保持不动，delay 设为 0。
+   （同理，缓出曲线也不能太陡，否则前 25% 就走完大半，看不清它浮上去。）
+   ------------------------------------------------------------------------ */
+
+.fh-old {
+  animation: fh-up 1680ms cubic-bezier(0.42, 0, 0.62, 0.42) 0ms forwards;
+}
+
+@keyframes fh-up {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+    filter: blur(0);
+    visibility: visible;
+  }
+  /* 33% ≈ 550ms：先站着不动，让观众看清"这是上一章那只" */
+  33% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+    filter: blur(0);
+  }
+  /* 40% ≈ 670ms：开始淡出 */
+  40% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) translateY(-9%) scale(0.985);
+    filter: blur(0.4px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-125%) scale(0.82);
+    filter: blur(7px);
+    /* 走完彻底藏起来，别留一个透明空壳在无障碍树里 */
+    visibility: hidden;
+  }
+}
+
+/* 一进场它就存在（还没开始走），所以给一个初始可见状态 */
+.fh-old-in {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateY(0) scale(1);
+}
+
+/* ---------------- 新形态：从下方升起来 ---------------- */
+
+.fh-new {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateY(95%) scale(0.86);
+}
+
+.fh-new-in {
+  animation: fh-rise 1780ms cubic-bezier(0.5, 0, 0.3, 1) 0ms forwards;
+}
+
+@keyframes fh-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(95%) scale(0.86);
+    filter: blur(8px);
+  }
+  /* 42% ≈ 750ms：新的还在下面等，此时旧的正在浮走 */
+  42% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(95%) scale(0.86);
+    filter: blur(8px);
+  }
+  52% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) translateY(62%) scale(0.92);
+    filter: blur(4px);
+  }
+  78% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(-4%) scale(1.045);
+    filter: blur(0);
+  }
+  90% {
+    transform: translate(-50%, -50%) translateY(1.5%) scale(0.988);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+}
+
+/* 上方的一道淡出光带，强化"它升上去了" */
+.fh-beam {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 78%;
+  height: 130%;
+  margin-left: -39%;
+  margin-top: -65%;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(215, 255, 104, 0) 0%,
+    rgba(215, 255, 104, 0.16) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  animation: fh-beam 1200ms ease-out 260ms 1;
+}
+
+@keyframes fh-beam {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.5);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1.15);
+  }
+}
+
+/* 文字：最后浮现 */
+.fh-text {
+  opacity: 0;
+  animation: fh-text 700ms cubic-bezier(0.22, 1, 0.36, 1) 1150ms forwards;
+}
+
+@keyframes fh-text {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 交接说明（"上一章的它 → 现在"） */
+.fh-caption {
+  opacity: 0;
+  animation: fh-text 600ms ease-out 1500ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fh-old,
+  .fh-new-in,
+  .fh-beam,
+  .fh-text,
+  .fh-caption {
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  .fh-old {
+    display: none !important;
+  }
+  .fh-new {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  .fh-beam {
+    display: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   章节开场那一屏的栅格。
+   动画期间：单栏居中（只有球体）
+   动画之后：lg 以上变【左文右图】两栏
+   踩过的坑：动画结束后忘了恢复两栏，球体就掉到文字下面去了。
+   ------------------------------------------------------------------------ */
+.chapter-intro-grid.is-handoff {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+}
+
+@media (min-width: 1024px) {
+  .chapter-intro-grid:not(.is-handoff) {
+    grid-template-columns: minmax(0, 1fr) 230px;
+  }
+}

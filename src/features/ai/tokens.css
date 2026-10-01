@@ -1,0 +1,317 @@
+﻿/* =============================================================================
+   tokens.css —— AI 模块的设计令牌
+   ---------------------------------------------------------------------------
+   为什么要单独一个文件：
+     之前颜色是"就地写死"的 —— 500 多处硬编码，十几种颜色散落在 16 个文件里。
+     想统一调一次，得改十几个文件，而且必然漏几处，最后"到处差一点"。
+     现在颜色只在这里定义一次，组件里引用。
+
+   ★ 视觉方向：一台复古掌机。暖灰哑光机身 + 暗屏亮字 + 荧光青背光。
+
+   ★★ 命名上踩过的坑，写在这里免得后来人再犯：
+     项目原来的习惯是 --color-ink = "深色正文"（配浅底）。
+     但暗屏上的文字必须是【亮色】—— 如果沿用 ink 这个名字，
+     以后看到 text-ink 的人会以为它是深色，写在暗屏上就成了黑字黑底。
+     所以暗屏上的文字单独叫 lcd-ink，ink 保持原义（浅底上的深字）。
+     名字不直观的地方，以后一定会出事。
+
+   ★ 两份定义，用途不同，要同步：
+     :root  —— 写成 "R G B"，给 rgb(var(--x) / 0.4) 这种内联样式用
+     @theme —— 写 hex，给 Tailwind 类名用（bg-lcd/12 这类）
+     @theme 不能写在这个文件里（Tailwind 只认主 CSS 文件里的 @theme），
+     它放在 src/index.css。
+   ========================================================================== */
+
+:root {
+  /* ---------------- 机身（设备外壳） ---------------- */
+  --body-bg-rgb: 233 230 220; /* #e9e6dc 暖灰哑光，像旧塑料 */
+  --body-bg-2-rgb: 222 218 205; /* 机身渐变下半段 */
+  --body-line-rgb: 201 196 181; /* #c9c4b5 外壳描边 */
+  --body-line-2-rgb: 176 170 152; /* 更深的描边，做双层厚度 */
+  --body-ink-rgb: 28 30 26;
+
+  /* ---------------- 屏幕（所有内容区） ---------------- */
+  --screen-bg-rgb: 14 22 20; /* #0e1614 屏幕底 */
+  --screen-bg-2-rgb: 20 30 27; /* 屏内浅一档 */
+  --screen-bg-3-rgb: 27 39 35; /* 卡片 / 浮起元素 */
+
+  /* 暗屏上的文字（亮色） */
+  --lcd-ink-rgb: 232 242 238;
+
+  /* ---------------- 屏幕背光 ---------------- */
+  --lcd-rgb: 215 255 104; /* #d7ff68 荧光青 */
+  --lcd-deep-rgb: 163 214 60;
+
+  /* ---------------- 语义 ---------------- */
+  --warn-rgb: 255 122 69; /* #ff7a45 错 / 稀缺 / 生病 */
+  --ok-rgb: 74 222 155; /* #4ade9b 对 / 治好了 */
+
+  /* ---------------- 形状 ---------------- */
+  /* 以前全是 rounded-3xl（24px）+ 软阴影，到处都柔和 = 没有重点。
+     现在分两档：外壳柔，屏内硬。对比才出得来。 */
+  --r-shell: 34px;
+  --r-screen: 22px;
+  --r-panel: 14px;
+
+  --shadow-shell: 0 26px 60px rgb(60 56 44 / 0.2);
+  --shadow-inset: inset 0 3px 16px rgb(0 0 0 / 0.6), inset 0 -1px 0 rgb(255 255 255 / 0.05);
+  --shadow-panel: 0 2px 10px rgb(0 0 0 / 0.3);
+}
+
+/* =============================================================================
+   屏幕：内嵌 + 扫描纹
+   ---------------------------------------------------------------------------
+   扫描纹只要 2% 不透明度。这是"像真屏幕"的关键细节 ——
+   但一旦加到 5% 以上就会变成土味 CRT。
+   ========================================================================== */
+
+.screen-surface {
+  position: relative;
+  background: linear-gradient(180deg, rgb(var(--screen-bg-rgb)) 0%, rgb(var(--screen-bg-2-rgb)) 100%);
+  border-radius: var(--r-screen);
+  box-shadow: var(--shadow-inset);
+  overflow: hidden;
+}
+
+/* 扫描纹：极淡的横向条纹 */
+.screen-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.022) 0px,
+    rgb(255 255 255 / 0.022) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* 暗角：让它更像"凹进去的一块玻璃" */
+.screen-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(120% 90% at 50% 0%, transparent 55%, rgb(0 0 0 / 0.32) 100%);
+}
+
+/* 屏幕内的实际内容要压在扫描纹上面 */
+.screen-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------------- 机身外壳 ---------------- */
+.device-shell {
+  background: linear-gradient(180deg, rgb(var(--body-bg-rgb)) 0%, rgb(var(--body-bg-2-rgb)) 100%);
+  border: 1px solid rgb(var(--body-line-2-rgb));
+  border-radius: var(--r-shell);
+  /* 双层描边 = 有厚度的塑料 */
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.5) inset,
+    var(--shadow-shell);
+}
+
+/* ---------------- 实体感按键（屏幕外，机身色） ---------------- */
+.key {
+  border: 1px solid rgb(var(--body-line-2-rgb));
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.9), rgb(var(--body-bg-rgb)));
+  color: rgb(var(--body-ink-rgb));
+  border-radius: 999px;
+  box-shadow:
+    0 2px 0 rgb(var(--body-line-2-rgb)),
+    0 3px 8px rgb(60 56 44 / 0.16);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+.key:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 3px 0 rgb(var(--body-line-2-rgb)),
+    0 6px 14px rgb(60 56 44 / 0.2);
+}
+.key:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgb(var(--body-line-2-rgb));
+}
+
+/* 屏内主控按键：荧光青实心 */
+.key-lcd {
+  background: linear-gradient(180deg, rgb(var(--lcd-rgb)) 0%, rgb(var(--lcd-deep-rgb)) 100%);
+  color: #10180f;
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 3px 0 rgb(120 165 40),
+    0 6px 18px rgb(var(--lcd-rgb) / 0.26);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+.key-lcd:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 0 rgb(120 165 40),
+    0 9px 24px rgb(var(--lcd-rgb) / 0.32);
+}
+.key-lcd:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgb(120 165 40);
+}
+.key-lcd:disabled {
+  opacity: 0.38;
+  transform: none;
+  box-shadow: 0 0 0 rgb(120 165 40);
+}
+
+/* 屏内次级按键：只有描边 */
+.key-ghost {
+  border: 1px solid rgb(var(--lcd-ink-rgb) / 0.2);
+  background: rgb(var(--screen-bg-3-rgb));
+  color: rgb(var(--lcd-ink-rgb) / 0.72);
+  border-radius: 999px;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+.key-ghost:hover {
+  transform: translateY(-1px);
+  border-color: rgb(var(--lcd-rgb) / 0.5);
+  color: rgb(var(--lcd-ink-rgb));
+}
+
+/* 屏内的"跳过"类按键：更低调，不抢主按钮 */
+.key-skip {
+  border: 1px dashed rgb(var(--lcd-ink-rgb) / 0.22);
+  background: transparent;
+  color: rgb(var(--lcd-ink-rgb) / 0.55);
+  border-radius: 999px;
+  transition:
+    border-color 120ms ease,
+    color 120ms ease;
+}
+.key-skip:hover {
+  border-color: rgb(var(--lcd-rgb) / 0.55);
+  color: rgb(var(--lcd-rgb));
+}
+
+/* ---------------- 屏内常用组合 ---------------- */
+
+.panel {
+  background: rgb(var(--screen-bg-2-rgb) / 0.9);
+  border: 1px solid rgb(var(--lcd-ink-rgb) / 0.09);
+  border-radius: var(--r-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+/* 数字：窄等宽 + 表格对齐（比分、置信度、进度都用它） */
+.num {
+  font-family: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ★ 以前满屏 tracking-[0.2em] 的松散大写英文，是最像"PPT 模板"的地方。
+   现在统一成紧凑小字。
+   ★ 默认是"暗屏上"的配色。要放在机身（浅底）上用，加 .on-body。
+   两种底色混用是这套系统最容易出错的地方 ——
+   浅色的标签印在浅色机身上等于隐形。 */
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgb(var(--lcd-ink-rgb) / 0.58);
+}
+
+/* 标题：字距收紧、字重提上去 */
+.title {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: rgb(var(--lcd-ink-rgb));
+}
+
+/* 正文 */
+.body-text {
+  color: rgb(var(--lcd-ink-rgb) / 0.76);
+}
+
+/* ---------------- 浅底（机身）上的变体 ---------------- */
+.on-body.label {
+  color: rgb(var(--body-ink-rgb) / 0.5);
+}
+.on-body.title {
+  color: rgb(var(--body-ink-rgb));
+}
+.on-body.body-text {
+  color: rgb(var(--body-ink-rgb) / 0.7);
+}
+.on-body.num {
+  color: rgb(var(--body-ink-rgb));
+}
+
+/* 屏内分隔线 */
+.row-line {
+  border-top: 1px solid rgb(var(--lcd-ink-rgb) / 0.08);
+}
+
+/* 暗屏上的滚动条，不然一条白滚动条很出戏 */
+.screen-surface * {
+  scrollbar-color: rgb(var(--lcd-rgb) / 0.3) transparent;
+}
+
+/* =============================================================================
+   平移入场（身份证、结算页用）
+   ---------------------------------------------------------------------------
+   用途：信息分左右两栏时，让它们【从各自那一侧滑进来】——
+   左栏从左往右，右栏从右往左。两侧对向进入，中间自然"合拢"，
+   比整块淡入有交代得多。
+
+   ★ transition 而不是 animation：
+     靠加 .is-in 类触发，方便配合"分步揭示"（第 1 步只出左栏，第 2 步出右栏）。
+   ★ 位移用百分比 → 小屏上也不会滑出太远。
+   ========================================================================== */
+
+.slide-in {
+  opacity: 0;
+  transition:
+    opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 820ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+/* 从左往右进（给左栏用） */
+.slide-from-left {
+  transform: translateX(-13%);
+}
+/* 从右往左进（给右栏用） */
+.slide-from-right {
+  transform: translateX(13%);
+}
+/* 从下方进（给整块内容用） */
+.slide-from-bottom {
+  transform: translateY(20px);
+}
+
+.slide-in.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* 用户开了"减少动态效果"：只留淡入 */
+@media (prefers-reduced-motion: reduce) {
+  .slide-in {
+    transform: none !important;
+    transition: opacity 400ms ease !important;
+  }
+  .slide-from-left,
+  .slide-from-right,
+  .slide-from-bottom {
+    transform: none !important;
+  }
+}

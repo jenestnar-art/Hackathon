@@ -1,4 +1,47 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+/* ═══ 人工智能模块的设计令牌 ═══
+   颜色只在那里定义一次，组件用 var() 或 Tailwind 类名引用。
+   ★ 不引它的话，AI 模块里的 bg-lcd / text-lcd-ink 这类类名不会生成，
+     而且是不报错的静默失效（颜色掉回默认值）。 */
+@import "./features/ai/tokens.css";
+
+/* =============================================================================
+   Tailwind v4 主题桥接（AI 模块用的）
+   ---------------------------------------------------------------------------
+   ★ @theme 必须写在【引入了 tailwindcss 的那个主 CSS 文件】里。
+     放在别的文件里 Tailwind 完全看不到 —— 类名照样生成，
+     但颜色全走默认值，而且是静默失效、不报错。
+     踩过这个坑，写在这里提醒后人。
+
+   声明之后自动生成工具类：--color-lcd → bg-lcd / text-lcd / border-lcd，
+   并且支持 bg-lcd/12 这种透明度修饰符。
+   ========================================================================== */
+@theme {
+  /* 机身（浅色，设备外壳） */
+  --color-body: #e9e6dc;
+  --color-body-2: #dedacd;
+  --color-body-line: #c9c4b5;
+  --color-body-line-2: #b0aa98;
+  --color-body-ink: #1c1e1a;
+
+  /* 屏幕（暗色，AI 模块的内容区） */
+  --color-screen: #0e1614;
+  --color-screen-2: #141e1b;
+  --color-screen-3: #1b2723;
+
+  /* 暗屏上的文字。名字带 lcd 前缀，避免和原义的 ink（浅底深字）混淆 */
+  --color-lcd-ink: #e8f2ee;
+  --color-ink: #16211f;
+
+  /* 屏幕背光 */
+  --color-lcd: #d7ff68;
+  --color-lcd-deep: #a3d63c;
+
+  /* 语义 */
+  --color-warn: #ff7a45;
+  --color-ok: #4ade9b;
+  --color-accent: #ff7a45;
+}
 
 :root {
   color-scheme: light;

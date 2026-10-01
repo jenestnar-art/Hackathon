@@ -1,0 +1,28 @@
+# =============================================================================
+# pnpm 构建脚本白名单
+# ---------------------------------------------------------------------------
+# 修掉了这里的占位文本。
+#
+# 原来这里是 `pnpm approve-builds` 写下的占位符：
+#     esbuild: set this to true or false
+# 那不是合法布尔值，导致的后果是：
+#   · pnpm install 报 ERR_PNPM_IGNORED_BUILDS
+#   · `pnpm build` 会先跑依赖检查，检查失败就直接中断 —— 编译根本不会开始
+#   · 任何人 clone 下来都装不上依赖
+# 也就是说这是一个会传染给所有队友的坏配置，不只是本机问题。
+#
+# 为什么 esbuild 要放行：
+#   vite 依赖 esbuild 的平台二进制，它由 postinstall 准备/校验。
+#   不放行的话 vite build 起不来。
+#
+# 其余四个本项目用不到，明确写 false，避免每次 install 都刷警告。
+# =============================================================================
+allowBuilds:
+  esbuild: true
+  core-js: false
+  cpu-features: false
+  protobufjs: false
+  ssh2: false
+
+onlyBuiltDependencies:
+  - esbuild

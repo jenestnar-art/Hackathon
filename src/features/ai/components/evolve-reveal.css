@@ -1,0 +1,148 @@
+/* =============================================================================
+   evolve-reveal.css —— "它变了"这一屏的【滚动式】形态切换
+   ---------------------------------------------------------------------------
+   做法（用户指定）：
+     两条轨道并排塞进一个裁切容器里。
+       · 左轨道：旧形态
+       · 右轨道：新形态
+     整条轨道水平向左滚一格 —— 旧形态从左边滚出画面，新形态从右边滚进来。
+     就像滚筒一样，"刷"地一下换掉。
+
+   比之前那版好的地方：
+     · 只有一个 transform 在动，不会糊、不依赖合成层的 filter 性能
+     · 方向明确（横向滚动），观众一眼看懂"旧的走了，新的来了"
+     · 留白和节奏好控制
+   ========================================================================== */
+
+.sr-mask {
+  /* 裁切容器：只露出一个格子的宽度 */
+  overflow: hidden;
+}
+
+.sr-track {
+  display: flex;
+  align-items: flex-end;
+  /* 两格总宽 = 200%，靠 translateX(-50%) 滚到第二格 */
+  width: 200%;
+  transform: translateX(0);
+}
+
+/* 每一格占半个 track（也就是恰好好等于 mask 的宽度） */
+.sr-cell {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* 滚动动画：先停一下让人看清旧形态，再滚 */
+.sr-rolling .sr-track {
+  animation: sr-roll 760ms cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+@keyframes sr-roll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 滚动过程中给整块加一点"运动模糊"的暗示，滚完撤掉 */
+.sr-rolling.sr-mask {
+  animation: sr-motion 760ms ease-in-out forwards;
+}
+
+@keyframes sr-motion {
+  0%,
+  100% {
+    filter: blur(0);
+  }
+  35% {
+    filter: blur(1.6px);
+  }
+  65% {
+    filter: blur(1.6px);
+  }
+}
+
+/* 箭头：滚动时淡出，滚完再淡入（它只是"之前→现在"的提示） */
+.sr-arrow {
+  transition: opacity 260ms ease-out;
+}
+.sr-rolling ~ .sr-arrow,
+.sr-root.sr-rolling .sr-arrow {
+  opacity: 0;
+}
+
+/* 新形态进来之后，轻轻落定一下 */
+.sr-cell.sr-fresh {
+  animation: sr-land 520ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@keyframes sr-land {
+  0% {
+    transform: scale(1.06, 0.95);
+  }
+  55% {
+    transform: scale(0.985, 1.015);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+/* 标题：滚完之后从模糊到清晰 */
+.sr-title-in {
+  animation: sr-title-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@keyframes sr-title-in {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    letter-spacing: 0.3em;
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    letter-spacing: -0.04em;
+  }
+}
+
+/* 徽章/术语：最后弹入 */
+.sr-chip {
+  opacity: 0;
+  animation: sr-chip 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sr-chip {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-rolling .sr-track,
+  .sr-rolling.sr-mask,
+  .sr-cell.sr-fresh,
+  .sr-title-in,
+  .sr-chip {
+    animation: none !important;
+    filter: none !important;
+  }
+  .sr-chip {
+    opacity: 1 !important;
+  }
+}

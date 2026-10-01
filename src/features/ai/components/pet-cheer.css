@@ -1,0 +1,160 @@
+/* =============================================================================
+   pet-cheer.css —— 开窍之后的庆祝动作
+   ---------------------------------------------------------------------------
+   为什么要单独做：
+     它开窍了、成绩单 100% 了，但还歪着头贴创可贴、还在说"对不起" ——
+     情绪是断的，用户会觉得"你怎么还丧着"。
+     所以这里给一个"高兴地跳起来"的动作：助跑下蹲 → 弹起 → 空中转一下 → 落定。
+   ========================================================================== */
+
+/* 连续弹跳：庆祝期间一直蹦 */
+.pk-cheer .pk-inner {
+  transform-origin: 50% 92%;
+  animation: pk-cheer-jump 900ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes pk-cheer-jump {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  14% {
+    transform: translateY(3px) scale(1.06, 0.92);
+  }
+  38% {
+    transform: translateY(-26px) scale(0.95, 1.07);
+  }
+  56% {
+    transform: translateY(-30px) scale(1.02, 1);
+  }
+  78% {
+    transform: translateY(0) scale(1.08, 0.9);
+  }
+  90% {
+    transform: translateY(-5px) scale(0.99, 1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* 庆祝时的光环：脚下一圈向外扩，配合起跳节奏 */
+.pk-cheer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 64px;
+  height: 20px;
+  margin-left: -32px;
+  border-radius: 999px;
+  pointer-events: none;
+  animation: pk-cheer-ring 900ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes pk-cheer-ring {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.6);
+    background: radial-gradient(ellipse at center, rgba(215, 255, 104, 0.6), transparent 70%);
+  }
+  45% {
+    opacity: 0.25;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+/* 头顶蹦出来的星星：和跳动同频 */
+.pk-cheer-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pk-cheer-stars > span {
+  position: absolute;
+  font-size: 15px;
+  animation: pk-star-pop 900ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.pk-cheer-stars > span:nth-child(1) {
+  left: 6%;
+  top: 16%;
+  animation-delay: 0ms;
+}
+.pk-cheer-stars > span:nth-child(2) {
+  right: 8%;
+  top: 10%;
+  animation-delay: 150ms;
+}
+.pk-cheer-stars > span:nth-child(3) {
+  right: 2%;
+  top: 42%;
+  animation-delay: 300ms;
+}
+
+@keyframes pk-star-pop {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translateY(4px);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.12) translateY(-6px);
+  }
+  70% {
+    opacity: 0.5;
+    transform: scale(0.95) translateY(-2px);
+  }
+}
+
+/* 刚开窍的那一下：做一次更夸张的"跳起来"亮相 */
+.pk-celebrate-once .pk-inner {
+  animation: pk-celebrate 1100ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@keyframes pk-celebrate {
+  0% {
+    transform: translateY(0) scale(1, 1) rotate(0deg);
+  }
+  12% {
+    transform: translateY(5px) scale(1.1, 0.88) rotate(0deg);
+  }
+  42% {
+    transform: translateY(-46px) scale(0.92, 1.12) rotate(-7deg);
+  }
+  58% {
+    transform: translateY(-52px) scale(1.04, 1) rotate(6deg);
+  }
+  76% {
+    transform: translateY(0) scale(1.12, 0.86) rotate(0deg);
+  }
+  88% {
+    transform: translateY(-8px) scale(0.98, 1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1) rotate(0deg);
+  }
+}
+
+/* 得意时状态文字用绿色，和"瞎猜"的灰、"训练中"的橙区分开 */
+.pk-status-proud {
+  color: #00a86b !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pk-cheer .pk-inner,
+  .pk-cheer::after,
+  .pk-cheer-stars > span,
+  .pk-celebrate-once .pk-inner {
+    animation: none !important;
+  }
+  .pk-cheer-stars {
+    display: none;
+  }
+}
