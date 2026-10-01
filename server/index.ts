@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import websocket from '@fastify/websocket';
 import { config } from './config.js';
+import { securityRoutes } from './routes/security.js';
 import { sessionRoutes } from './routes/session.js';
 
 const app = Fastify({ logger: true });
@@ -8,8 +9,11 @@ const app = Fastify({ logger: true });
 // 注册 WebSocket 插件
 await app.register(websocket);
 
-// 注册会话路由
+// 注册会话路由（软件方向）
 await app.register(sessionRoutes);
+
+// 注册安全靶机房间路由
+await app.register(securityRoutes);
 
 // 健康检查
 app.get('/health', async () => ({ ok: true, time: Date.now() }));

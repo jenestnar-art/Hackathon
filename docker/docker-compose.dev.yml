@@ -1,0 +1,14 @@
+# 仅用于本地构建镜像；运行期由 server/security/room.ts 按 session 动态编排。
+services:
+  attacker:
+    build:
+      context: .
+      dockerfile: attacker.Dockerfile
+    image: codecrossroad/attacker:latest
+    tty: true
+    stdin_open: true
+  target:
+    build:
+      context: .
+      dockerfile: target.Dockerfile
+    image: codecrossroad/target:latest

@@ -42,7 +42,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
     const container = docker.getContainer(containerId);
     const stream: Duplex = await startSecurityShell({ container });
 
-    socket.on('message', (data) => stream.write(data));
+    socket.on('message', (data: string | Buffer) => stream.write(data));
     stream.on('data', (chunk: Buffer) => socket.send(chunk));
     socket.on('close', () => {
       stream.destroy();
