@@ -169,7 +169,7 @@ export function HomePage({ user, onLogout }: HomePageProps) {
             </div>
             <div className="hidden items-center gap-3 text-xs text-[#12201e]/38 sm:flex">
               <span className="size-1.5 rounded-full bg-[#00a86b]" />
-              四个工作台将在下一阶段逐步接入
+              网络安全已接入真实靶机，其余工作台逐步开放
             </div>
           </div>
 

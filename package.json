@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "tsx watch server/index.ts",
+    "server": "tsx server/index.ts",
+    "docker:build": "bash docker/build.sh",
     "build": "tsc -b && vite build",
+    "typecheck:server": "tsc --noEmit -p tsconfig.server.json",
     "lint": "oxlint",
     "preview": "vite preview"
   },
