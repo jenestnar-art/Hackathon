@@ -80,7 +80,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </p>
 
           <div className="mt-12 grid max-w-xl grid-cols-2 gap-3">
-            {directionPreview.map((direction, index) => (
+            {directionPreview.map((direction) => (
               <div
                 key={direction.number}
                 className={[

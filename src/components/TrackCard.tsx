@@ -8,7 +8,7 @@ interface TrackCardProps {
   index: number
 }
 
-export function TrackCard({ track, index }: TrackCardProps) {
+export function TrackCard({ track }: TrackCardProps) {
   const Icon = track.icon
   const cardStyle = {
     '--track-color': track.color,
@@ -44,11 +44,7 @@ export function TrackCard({ track, index }: TrackCardProps) {
       <div className="relative z-10 mt-7">
         <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-[#12201e]/42">
           <span>{track.subtitle}</span>
-          {index === 1 && (
-            <span className="rounded-full bg-[#12201e] px-2 py-1 text-[10px] tracking-normal text-white">
-              最上镜
-            </span>
-          )}
+          
         </div>
         <h3 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#12201e]">
           {track.title}
